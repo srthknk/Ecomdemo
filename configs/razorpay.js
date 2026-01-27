@@ -1,18 +1,30 @@
 import Razorpay from 'razorpay'
 
-// Initialize Razorpay instance
-// Keys will be added from environment variables
-const razorpayInstance = new Razorpay({
-    key_id: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || '',
-    key_secret: process.env.RAZORPAY_KEY_SECRET || ''
-})
+// Lazy initialize Razorpay instance only when needed
+let razorpayInstance = null
 
-export default razorpayInstance
+function getRazorpayInstance() {
+    if (!razorpayInstance) {
+        const keyId = process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID
+        const keySecret = process.env.RAZORPAY_KEY_SECRET
+        
+        if (!keyId || !keySecret) {
+            throw new Error('Razorpay keys not configured in environment variables')
+        }
+        
+        razorpayInstance = new Razorpay({
+            key_id: keyId,
+            key_secret: keySecret
+        })
+    }
+    return razorpayInstance
+}
 
 // Helper function to create Razorpay order
 export async function createRazorpayOrder(amount, notes = {}) {
     try {
-        const order = await razorpayInstance.orders.create({
+        const instance = getRazorpayInstance()
+        const order = await instance.orders.create({
             amount: Math.round(amount * 100), // Amount in paise
             currency: 'INR',
             receipt: `receipt_${Date.now()}`,
