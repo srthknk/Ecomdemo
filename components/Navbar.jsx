@@ -32,6 +32,11 @@ const Navbar = () => {
         }
 
         fetchStoreName()
+
+        // Poll for store name changes every 5 seconds
+        const interval = setInterval(fetchStoreName, 5000)
+
+        return () => clearInterval(interval)
     }, [])
 
     const handleSearch = (e) => {
