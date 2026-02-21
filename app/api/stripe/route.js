@@ -2,10 +2,17 @@ import prisma from "@/lib/prisma"
 import { NextResponse } from "next/server"
 import Stripe from "stripe"
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY)
+// Lazy load stripe to avoid build errors when STRIPE_SECRET_KEY is not set
+const getStripe = () => {
+    if (!process.env.STRIPE_SECRET_KEY) {
+        throw new Error('STRIPE_SECRET_KEY is not configured')
+    }
+    return new Stripe(process.env.STRIPE_SECRET_KEY)
+}
 
 export async function POST(request){
     try {
+        const stripe = getStripe()
         const body = await request.text()
         const sig = request.headers.get('stripe-signature')
 
