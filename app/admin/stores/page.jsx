@@ -6,6 +6,7 @@ import { useAuth, useUser } from "@clerk/nextjs"
 import axios from "axios"
 import { useEffect, useState } from "react"
 import toast from "react-hot-toast"
+import { DeleteIcon } from "lucide-react"
 
 export default function AdminStores() {
 
@@ -30,6 +31,20 @@ export default function AdminStores() {
         try {
             const token = await getToken()
             const { data } = await axios.post('/api/admin/toggle-store', {storeId}, {headers: { Authorization: `Bearer ${token}` }})
+            await fetchStores()
+            toast.success(data.message)
+        } catch (error) {
+            toast.error(error?.response?.data?.error || error.message)
+        }
+    }
+
+    const deleteStore = async (storeId, storeName) => {
+        try {
+            const confirm = window.confirm(`Are you sure you want to delete "${storeName}"? This action cannot be undone and will delete all associated products and orders.`)
+            if(!confirm) return;
+
+            const token = await getToken()
+            const { data } = await axios.delete(`/api/admin/stores?storeId=${storeId}`, {headers: { Authorization: `Bearer ${token}` }})
             await fetchStores()
             toast.success(data.message)
         } catch (error) {
@@ -62,6 +77,9 @@ export default function AdminStores() {
                                     <div className="w-9 h-5 bg-slate-300 rounded-full peer peer-checked:bg-green-600 transition-colors duration-200"></div>
                                     <span className="dot absolute left-1 top-1 w-3 h-3 bg-white rounded-full transition-transform duration-200 ease-in-out peer-checked:translate-x-4"></span>
                                 </label>
+                                <div className="border-l border-slate-300 pl-3 ml-1">
+                                    <DeleteIcon onClick={() => toast.promise(deleteStore(store.id, store.name), { loading: "Deleting store..." })} className="w-4 h-4 text-red-500 hover:text-red-800 cursor-pointer btn-animate btn-danger transition-all duration-300" title="Delete store" />
+                                </div>
                             </div>
                         </div>
                     ))}

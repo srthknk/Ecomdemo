@@ -10,7 +10,26 @@ const TrackingModal = ({ order, onClose }) => {
 
     useEffect(() => {
         setMounted(true)
-    }, [])
+        // Prevent body scroll when modal is open
+        document.documentElement.style.overflow = 'hidden'
+        document.body.style.overflow = 'hidden'
+        
+        // Add keyboard support for ESC key
+        const handleEscapeKey = (e) => {
+            if (e.key === 'Escape') {
+                onClose()
+            }
+        }
+        
+        document.addEventListener('keydown', handleEscapeKey)
+        
+        return () => {
+            // Restore body scroll when modal closes
+            document.documentElement.style.overflow = ''
+            document.body.style.overflow = ''
+            document.removeEventListener('keydown', handleEscapeKey)
+        }
+    }, [onClose])
 
     // Timeline statuses in order
     const timelineSteps = [
@@ -30,11 +49,17 @@ const TrackingModal = ({ order, onClose }) => {
     }
 
     const modalContent = (
-        <div onClick={onClose} className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50 p-4">
-            <div onClick={e => e.stopPropagation()} className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+        <div 
+            onClick={onClose} 
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 p-4 flex items-center justify-center overflow-hidden"
+        >
+            <div 
+                onClick={e => e.stopPropagation()} 
+                className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl h-[90vh] flex flex-col"
+            >
                 
                 {/* Header */}
-                <div className={`sticky top-0 bg-gradient-to-r ${order.isCancelled ? 'from-red-900 to-red-800' : 'from-slate-900 to-slate-800'} text-white p-6 flex justify-between items-center rounded-t-2xl`}>
+                <div className={`bg-gradient-to-r ${order.isCancelled ? 'from-red-900 to-red-800' : 'from-slate-900 to-slate-800'} text-white p-6 flex justify-between items-center rounded-t-2xl flex-shrink-0`}>
                     <div>
                         <h2 className="text-2xl font-bold">Order Tracking</h2>
                         <p className="text-slate-300 text-sm mt-1">Order ID: {order.id.slice(0, 8)}...</p>
@@ -44,7 +69,7 @@ const TrackingModal = ({ order, onClose }) => {
                     </button>
                 </div>
 
-                <div className="p-8 space-y-8">
+                <div className="p-8 space-y-8 overflow-y-auto flex-1">
                     
                     {/* Cancellation Notice */}
                     {order.isCancelled && (
@@ -205,7 +230,7 @@ const TrackingModal = ({ order, onClose }) => {
                 </div>
 
                 {/* Close Button */}
-                <div className="sticky bottom-0 bg-slate-50 border-t border-slate-200 p-6 rounded-b-2xl">
+                <div className="bg-slate-50 border-t border-slate-200 p-6 rounded-b-2xl flex-shrink-0">
                     <button
                         onClick={onClose}
                         className="w-full py-3 bg-gradient-to-r from-slate-700 to-slate-900 text-white font-semibold rounded-lg hover:shadow-lg btn-animate transition-all duration-300"

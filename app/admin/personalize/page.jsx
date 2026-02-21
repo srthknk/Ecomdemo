@@ -15,12 +15,18 @@ export default function AdminPersonalize() {
         bannerImage1: "",
         bannerImage2: "",
         bannerImage3: "",
+        bannerImage4: "",
+        bannerImage5: "",
         bannerTitle1: "",
         bannerTitle2: "",
         bannerTitle3: "",
+        bannerTitle4: "",
+        bannerTitle5: "",
         bannerLink1: "/shop",
         bannerLink2: "/shop",
         bannerLink3: "/shop",
+        bannerLink4: "/shop",
+        bannerLink5: "/shop",
         email: "contact@example.com",
         phone: "+1-212-456-7890",
         address: "794 Francisco, 94102",
@@ -35,7 +41,9 @@ export default function AdminPersonalize() {
     const [previewImages, setPreviewImages] = useState({
         banner1: "",
         banner2: "",
-        banner3: ""
+        banner3: "",
+        banner4: "",
+        banner5: ""
     })
 
     const linkOptions = [
@@ -56,7 +64,9 @@ export default function AdminPersonalize() {
                 setPreviewImages({
                     banner1: res.data.bannerImage1,
                     banner2: res.data.bannerImage2,
-                    banner3: res.data.bannerImage3
+                    banner3: res.data.bannerImage3,
+                    banner4: res.data.bannerImage4,
+                    banner5: res.data.bannerImage5
                 })
             } catch (error) {
                 console.error('Error fetching settings:', error)
@@ -87,7 +97,7 @@ export default function AdminPersonalize() {
                 ]
             })
 
-            const key = bannerKey === 1 ? 'bannerImage1' : bannerKey === 2 ? 'bannerImage2' : 'bannerImage3'
+            const key = bannerKey <= 3 ? `bannerImage${bannerKey}` : `bannerImage${bannerKey}`
             setSettings(prev => ({ ...prev, [key]: imageUrl }))
             setPreviewImages(prev => ({ ...prev, [`banner${bannerKey}`]: imageUrl }))
             toast.success('Image uploaded successfully')
@@ -98,7 +108,7 @@ export default function AdminPersonalize() {
     }
 
     const handleUrlChange = (bannerKey, url) => {
-        const key = bannerKey === 1 ? 'bannerImage1' : bannerKey === 2 ? 'bannerImage2' : 'bannerImage3'
+        const key = `bannerImage${bannerKey}`
         setSettings(prev => ({ ...prev, [key]: url }))
         setPreviewImages(prev => ({ ...prev, [`banner${bannerKey}`]: url }))
     }
@@ -268,7 +278,7 @@ export default function AdminPersonalize() {
 
                 {/* Banners Section */}
                 <div className="space-y-6">
-                    {[1, 2, 3].map((num) => (
+                    {[1, 2, 3, 4, 5].map((num) => (
                         <div key={num} className="bg-white p-6 rounded-lg shadow">
                             <h2 className="text-xl font-semibold text-slate-700 mb-4">Banner {num}</h2>
 

@@ -19,17 +19,19 @@ export async function POST(request){
             return NextResponse.json({ error: "Coupon not found" }, { status: 404 })
         }
 
-        if(coupon.forNewUser){
-            const userorders = await prisma.order.findMany({where: {userId}})
-            if(userorders.length > 0){
-                return NextResponse.json({ error: "Coupon valid for new users" }, { status: 400 })
-            }
-        }
+        // Check eligibility for both filters
+        const userorders = await prisma.order.findMany({where: {userId}})
+        const isNewUser = userorders.length === 0
+        const hasPlusPlan = has({plan: 'plus'})
 
-        if (coupon.forMember){
-            const hasPlusPlan = has({plan: 'plus'})
-            if(!hasPlusPlan){
-                return NextResponse.json({ error: "Coupon valid for members only" }, { status: 400 })
+        // If either filter is set, check if user meets at least one condition
+        if (coupon.forNewUser || coupon.forMember) {
+            const canUseAsNewUser = coupon.forNewUser && isNewUser
+            const canUseAsMember = coupon.forMember && hasPlusPlan
+            
+            // User must meet at least one eligibility condition
+            if (!canUseAsNewUser && !canUseAsMember) {
+                return NextResponse.json({ error: "Coupon not valid for your account type" }, { status: 400 })
             }
         }
 
